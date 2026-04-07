@@ -15,21 +15,23 @@ export async function POST(request: NextRequest) {
     // Send to Google Apps Script webhook
     const googleScriptUrl = "https://script.google.com/macros/s/AKfycbw8J2BU4mhpOthMl3Ran1cJLV8ElFqhmXbi8X_OW-_A6qjzfTrh7SMi0fYmgNBxPNLu/exec"
     
-    const payload = new URLSearchParams({
-      name: body.name,
-      email: body.email,
+    // Build URL with parameters
+    const params = new URLSearchParams({
+      name: body.name || "",
+      email: body.email || "",
       interest: body.interest || "",
       message: body.message || "",
-      timestamp: new Date().toISOString(),
     })
 
     try {
-      const response = await fetch(googleScriptUrl, {
+      const urlWithParams = `${googleScriptUrl}?${params.toString()}`
+      
+      const response = await fetch(urlWithParams, {
         method: "POST",
-        body: payload,
+        mode: "no-cors",
       })
 
-      console.log("Google Apps Script request sent successfully")
+      console.log("Sent to Google Apps Script")
     } catch (googleError) {
       console.error("Error sending to Google Apps Script:", googleError)
     }
