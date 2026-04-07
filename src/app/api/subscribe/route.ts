@@ -15,27 +15,23 @@ export async function POST(request: NextRequest) {
     // Send to Google Apps Script webhook
     const googleScriptUrl = "https://script.google.com/macros/s/AKfycbw8J2BU4mhpOthMl3Ran1cJLV8ElFqhmXbi8X_OW-_A6qjzfTrh7SMi0fYmgNBxPNLu/exec"
     
+    const payload = new URLSearchParams({
+      name: body.name,
+      email: body.email,
+      interest: body.interest || "",
+      message: body.message || "",
+      timestamp: new Date().toISOString(),
+    })
+
     try {
       const response = await fetch(googleScriptUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: body.name,
-          email: body.email,
-          interest: body.interest || "",
-          message: body.message || "",
-          timestamp: new Date().toISOString(),
-        }),
+        body: payload,
       })
 
-      if (!response.ok) {
-        console.warn("Google Apps Script returned non-200 status:", response.status)
-      }
+      console.log("Google Apps Script request sent successfully")
     } catch (googleError) {
       console.error("Error sending to Google Apps Script:", googleError)
-      // Don't fail the request if Google Script fails
     }
 
     console.log("Form submission received:", body)
