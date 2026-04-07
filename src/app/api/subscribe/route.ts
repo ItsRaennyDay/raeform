@@ -12,14 +12,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Here you can:
-    // 1. Save to database
-    // 2. Send email notification
-    // 3. Add to email list (Mailchimp, Brevo, etc.)
+    // Send to Google Apps Script webhook
+    const googleScriptUrl = "https://script.google.com/macros/s/AKfycbw8J2BU4mhpOthMl3Ran1cJLV8ElFqhmXbi8X_OW-_A6qjzfTrh7SMi0fYmgNBxPNLu/exec"
     
-    console.log("Form submission:", body)
+    try {
+      const response = await fetch(googleScriptUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: body.name,
+          email: body.email,
+          interest: body.interest || "",
+          message: body.message || "",
+          timestamp: new Date().toISOString(),
+        }),
+      })
 
-    // For now, just return success
+      if (!response.ok) {
+        console.warn("Google Apps Script returned non-200 status:", response.status)
+      }
+    } catch (googleError) {
+      console.error("Error sending to Google Apps Script:", googleError)
+      // Don't fail the request if Google Script fails
+    }
+
+    console.log("Form submission received:", body)
+
     return NextResponse.json(
       { success: true, message: "Thank you for joining!" },
       { status: 200 }
